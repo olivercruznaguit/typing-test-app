@@ -2,11 +2,18 @@ import { faker } from "@faker-js/faker";
 import "./App.css";
 import "@faker-js/faker";
 import { useEffect, useMemo, useState } from "react";
+import Nav from "./Nav";
+import WordsDisplay from "./WordsDisplay";
 
 function App() {
   const [isRestarted, setIsRestarted] = useState(false);
-  const generateWords = useMemo(() => faker.word.words({ count: { min: 25, max: 30 } }), [isRestarted]);
-  const [arrayWords, setArrayWords] = useState<string[]>(generateWords.split(" "));
+  const generateWords = useMemo(
+    () => faker.word.words({ count: { min: 25, max: 30 } }),
+    [isRestarted]
+  );
+  const [arrayWords, setArrayWords] = useState<string[]>(
+    generateWords.split(" ")
+  );
   const [activeWord, setActiveWord] = useState(arrayWords[0]);
   const [inputValue, setInputValue] = useState("");
 
@@ -20,7 +27,7 @@ function App() {
       setCountdown((prevCountdown) => {
         if (prevCountdown === 1) {
           clearInterval(interval);
-          startTypingTest(); 
+          startTypingTest();
           return 0;
         } else {
           return prevCountdown - 1;
@@ -31,12 +38,12 @@ function App() {
   }, [countdown]);
 
   useEffect(() => {
-    setArrayWords(generateWords.split(" "))
+    setArrayWords(generateWords.split(" "));
     setActiveWord(generateWords.split(" ")[0]);
   }, [generateWords]);
 
   const startTypingTest = () => {
-    setIsRestarted(false)
+    setIsRestarted(false);
     setActiveWord(arrayWords[0]);
     setStartTime(Date.now());
   };
@@ -66,7 +73,7 @@ function App() {
   };
 
   const handleRestart = () => {
-    setIsRestarted(true)
+    setIsRestarted(true);
     setInputValue("");
     setWordsTyped(0);
     setWPM(0);
@@ -75,38 +82,26 @@ function App() {
   };
 
   return (
-    <div className="App text-primary h-screen justify-center content-center">
-      <h1 className="text-5xl font-mono mb-2">Typing Test</h1>
-
-      <div className="m-10">
-        <div className="text-4xl font-mono w-auto bg-slate-400 p-5 leading-relaxed text-slate-900 tracking-wide">
-          {countdown > 0 ? (
-            <h1 className="text-5xl font-mono">{countdown}</h1>
-          ) : (
-            <>
-              {arrayWords.map((word, index) => (
-                <span
-                  className={`${
-                    word === activeWord ? "bg-green-300" : "bg-slate-400"
-                  }`}
-                  key={index}
-                >
-                  {word + " "}
-                </span>
-              ))}
-            </>
-          )}
+    <div className="App text-primary justify-center content-center">
+      <Nav />
+      <div className="flex flex-col content-center">
+        <WordsDisplay
+          countDown={countdown}
+          arrayWords={arrayWords}
+          activeWord={activeWord}
+        />
+        <div className="mt-10">
+          <input
+            className="text-slate-900"
+            type="text"
+            onChange={handleChange}
+            placeholder="Type here"
+            value={inputValue}
+          />
         </div>
       </div>
-      <div className="content-end justify-end items-end">
-        <input
-          className="text-slate-900 mt-10"
-          type="text"
-          onChange={handleChange}
-          placeholder="Type here"
-          value={inputValue}
-        />
-        {wpm > 0 && <div>Words per minute: {wpm}</div>}
+      <div className="absolute left-0 ml-10 bottom-0 mb-10 bg-white text-slate-900 rounded-[10px] px-2 py-3">
+        <div className="text-xl font-mono">WPM: {wpm !== 0 ? (wpm) : "--" }</div>
       </div>
       <div className="absolute right-0 mr-10 bottom-0 mb-10">
         <button onClick={handleRestart}>Restart</button>
